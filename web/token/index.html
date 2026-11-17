@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <!--HEAD-->
+  <link rel="canonical" href="https://staggeragent.xyz/token/" />
+  <meta property="og:url" content="https://staggeragent.xyz/token/" />
+  <title>$RUNGS · Stagger</title>
+  <meta name="description" content="$RUNGS: stake it to receive 5% of the ETH side of the swap fees Stagger ladders claim, streamed over 7 days. Launches 17 Nov 2026, 15:00 UTC on Pons." />
+  <meta property="og:title" content="$RUNGS · the Stagger token" />
+  <meta property="og:description" content="Stake $RUNGS for the ETH fee stream. Launch 17 Nov 2026, 15:00 UTC on Pons." />
+</head>
+<body>
+  <!--HEADER-->
+  <main class="page">
+    <div class="eyebrow">Token</div>
+    <h1>$RUNGS</h1>
+    <p class="lead">The token of Stagger. Stake it and you receive a share of the ETH that ladder owners claim as swap fees, streamed over 7 days.</p>
+
+    <div class="box">
+      <div class="launchbar" style="position:static;padding:0;background:none;border:0;backdrop-filter:none">
+        <div class="ca" data-ca></div>
+        <span class="countdown" data-countdown></span>
+      </div>
+      <div class="actions" style="margin-top:14px">
+        <a class="btn btn-primary" data-buy target="_blank" rel="noopener">Pons link opens at 15:00 UTC</a>
+        <a class="btn" data-x href="https://x.com/staggeragent" target="_blank" rel="noopener">X @staggeragent</a>
+      </div>
+    </div>
+
+    <dl class="kv">
+      <dt>Ticker</dt><dd class="mono">$RUNGS</dd>
+      <dt>Name</dt><dd>Stagger</dd>
+      <dt>Chain</dt><dd>Robinhood Chain (4663)</dd>
+      <dt>Launch</dt><dd class="mono">17 Nov 2026 · 15:00 UTC · on Pons</dd>
+      <dt>Contract address</dt><dd class="mono" id="caText">Published here at launch. Before that, any address is not ours.</dd>
+    </dl>
+
+    <h2>What the token does</h2>
+    <ul>
+      <li><b>Stake for the ETH fee stream.</b> When an owner claims swap fees, the LadderManager keeps a fixed <span id="feeTxt">5%</span> of the ETH side only (set at deploy, never on principal; fees in USDG or other tokens go 100% to the owner). That ETH goes to the StaggerStake contract, which streams it to stakers over 7 days, pro rata to stake.</li>
+      <li><b>No lock.</b> Stake, unstake and claim whenever you like.</li>
+      <li><b>No vote, no admin.</b> The token controls nothing in the contracts. There is no owner key that can change the fee or move funds.</li>
+    </ul>
+
+    <div class="box warn">
+      <b>No promised returns.</b> The stream is only as large as the ETH fees people actually claim (pools without ETH add nothing). If nobody opens ladders or claims fees, stakers receive nothing. $RUNGS can lose all of its value. Nothing here is financial advice.
+    </div>
+
+    <h2>Before you buy</h2>
+    <ul>
+      <li>Only trust the contract address shown on this page and on <a data-x href="https://x.com/staggeragent" target="_blank" rel="noopener">@staggeragent</a>.</li>
+      <li>The contracts are tested but <b>not audited</b>. Read <a href="/docs/#contracts">what they can and cannot do</a>.</li>
+      <li>All times on this site are UTC.</li>
+    </ul>
+  </main>
+  <!--FOOTER-->
+  <script type="module" src="/src/token.js"></script>
+</body>
+</html>

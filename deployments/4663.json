@@ -1,0 +1,6 @@
+{
+ "chainId": 4663,
+ "StaggerStake": "0x90F6EFde4F94BAb1906ef2D263174101a22C4872",
+ "LadderManager": "0x0114b4E481ca3227799FF22554913431A821FBfB",
+ "feeBps": 500
+}

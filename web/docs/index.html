@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <!--HEAD-->
+  <link rel="canonical" href="https://staggeragent.xyz/docs/" />
+  <meta property="og:url" content="https://staggeragent.xyz/docs/" />
+  <title>Docs · Stagger</title>
+  <meta name="description" content="How to use Stagger in one minute, how the range agent decides, what the contracts can and cannot do, what is not audited, and the risks." />
+  <meta property="og:title" content="Stagger docs" />
+  <meta property="og:description" content="How the range agent decides, what the contracts can and cannot do, and the risks." />
+</head>
+<body>
+  <!--HEADER-->
+  <main class="page">
+    <div class="eyebrow">Docs</div>
+    <h1>How Stagger works</h1>
+    <p class="lead">Stagger is a range agent and LP ladder manager for Uniswap v3 on Robinhood Chain. The agent proposes; you sign. Your ladder stays yours, and every number is shown with its source.</p>
+
+    <h2 id="start">Use it in one minute</h2>
+    <ol>
+      <li>Open the <a href="/#agent">agent</a>. The top pool by 24h volume is already loaded; pick another from the list or the <a href="/#pools">pools table</a>.</li>
+      <li>Choose a horizon (1, 3, 7, 14 or 30 days) and a side: two-sided, below the price (buy as it falls) or above the price (sell as it rises).</li>
+      <li>Enter the most you want to put in of each token. Two-sided needs both tokens; one-sided needs only one.</li>
+      <li>Read the plan: range, shape, bins, chance of staying inside, fee estimate, and every reason the agent gives.</li>
+      <li>Press <b>Sign &amp; open ladder</b>. Your wallet asks for a token approval if needed, then one transaction opens all bins.</li>
+      <li>Manage it under <a href="/#portfolio">Portfolio</a>: claim fees, withdraw selected bins, or close.</li>
+    </ol>
+
+    <h2 id="agent">How the agent decides</h2>
+    <p><b>Measure.</b> It reads the pool live (tick, liquidity, fee tier) and up to 168 hourly prices: GeckoTerminal hourly candles when they match the live pool price, otherwise the pool's own on-chain oracle (TWAP). From the hourly returns it computes daily volatility (σ), autocorrelation (does the price snap back?) and a trend score (drift relative to noise).</p>
+    <p><b>Shape.</b></p>
+    <ul>
+      <li><b>Bid-Ask</b> when σ is above 5% a day or the price trends strongly: more liquidity toward the edges, where it is paid as the price travels. Default 12 bins, z = 1.64.</li>
+      <li><b>Curve</b> when σ is below 1.5% a day and the price tends to snap back: most liquidity near the current price. Default 9 bins, z = 1.0.</li>
+      <li><b>Spot</b> otherwise: liquidity spread evenly. Default 1 bin, z = 1.28.</li>
+      <li>No usable history: the agent assumes 5% a day and goes wide.</li>
+    </ul>
+    <p><b>Range.</b> Half-width = <code>z × σ_day × √days</code>, aligned to the pool's tick spacing. One-sided ranges sit fully below or above the price with twice that width. For two-sided ranges the plan shows the chance the price is still inside after the horizon in a normal model, <code>2Φ(z) − 1</code>.</p>
+    <p><b>Bins.</b> The range is cut into 1–40 bins; each bin is one Uniswap v3 position, so each one costs gas to open. Your amounts are scaled so neither token goes over what you entered.</p>
+    <p><b>Fees.</b> The estimate is your share of the pool's in-range liquidity times the last 24h volume times the fee tier. It is zero while the price is outside your range.</p>
+    <p><b>Track record.</b> Every 6 hours the agent publishes a 1-day call for the top pools and later records whether the price stayed inside. The <a href="/#record">scoreboard</a> shows all of them.</p>
+
+    <h2 id="contracts">What the contracts can and cannot do</h2>
+    <p><b>LadderManager</b> opens 1–40 Uniswap v3 positions in one transaction and holds them for you.</p>
+    <ul>
+      <li>Only the ladder's owner can <code>claim</code>, <code>withdraw</code> selected bins, or <code>close</code> it. Funds go back to the owner only.</li>
+      <li>The protocol fee is 5% of the <b>ETH side of claimed swap fees</b>, set at deploy, capped at 10% in code, and never taken from principal. Fees in USDG or any other token go 100% to the owner.</li>
+      <li>No admin, no owner key, no proxy, no upgrade, no pause. Nobody can move your positions.</li>
+      <li>Every bin has a slippage floor and the open has a deadline.</li>
+    </ul>
+    <p><b>StaggerStake</b> only receives ETH (the fee cut) and streams it to $RUNGS stakers over 7 days. It swaps nothing.</p>
+    <ul>
+      <li>Stake, unstake and claim at any time; no lock.</li>
+      <li>The $RUNGS address is set once after launch and can never change. There is no other admin function.</li>
+    </ul>
+    <p>The agent and the API never hold keys or funds. They return a plan and the transaction data; your wallet signs it.</p>
+    <p id="addrs" class="mono small muted">Contract addresses appear here once deployed.</p>
+
+    <div class="box warn" id="audit">
+      <b>Not audited.</b> Both contracts have fork tests against Robinhood Chain mainnet, but no external audit. The agent's maths is a model, not a guarantee. Use amounts you can afford to lose.
+    </div>
+
+    <h2 id="risks">Risks</h2>
+    <ul>
+      <li><b>Impermanent loss.</b> As the price moves, your ladder converts one token into the other. You can end with less value than if you had held.</li>
+      <li><b>Out of range earns nothing.</b> A bin only earns fees while the price is inside it. If the price leaves the whole range, the ladder sits idle in one token.</li>
+      <li><b>Past prices are not future prices.</b> Volatility, the shape choice and the stay probability come from recent history; markets change.</li>
+      <li><b>Gas.</b> Each bin is a position; more bins cost more gas to open, withdraw and close.</li>
+      <li><b>Smart-contract risk.</b> Uniswap v3, the tokens in the pool, and Stagger's own unaudited contracts can have bugs.</li>
+      <li><b>$RUNGS.</b> No promised returns. The ETH stream depends entirely on fees being claimed.</li>
+    </ul>
+
+    <h2 id="api">API and MCP for other agents</h2>
+    <p>The same plan is public as JSON and as MCP tools (<code>stagger_plan</code>, <code>stagger_pools</code>).</p>
+    <div class="box mono small" style="overflow-x:auto;white-space:pre">curl "https://staggeragent.xyz/api/pools"
+curl "https://staggeragent.xyz/api/plan?pool=0x…&amp;horizonDays=7&amp;mode=both&amp;amount0=1&amp;amount1=2000"
+
+# MCP: point the Stagger MCP server at the public API
+STAGGER_API=https://staggeragent.xyz</div>
+    <p class="muted small">All times on this site are UTC.</p>
+  </main>
+  <!--FOOTER-->
+  <script type="module" src="/src/docs.js"></script>
+</body>
+</html>

@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <!--HEAD-->
+  <link rel="canonical" href="https://staggeragent.xyz/" />
+  <meta property="og:url" content="https://staggeragent.xyz/" />
+  <title>Stagger · range agent for Uniswap v3 on Robinhood Chain</title>
+  <meta name="description" content="Pick a Uniswap v3 pool on Robinhood Chain. The agent measures the price, proposes a shape, a range and up to 40 bins, and you sign one transaction. $RUNGS stakers get 5% of the ETH side of claimed swap fees." />
+  <meta property="og:title" content="Stagger · the agent picks the rungs" />
+  <meta property="og:description" content="A range agent and LP ladder manager for Uniswap v3 on Robinhood Chain. Every number shown with its source." />
+</head>
+<body>
+  <!--HEADER-->
+  <main>
+    <section class="hero" id="agent" aria-label="Range agent">
+      <div class="stage" id="stage">
+        <div class="stage-eyebrow eyebrow">Range agent · Uniswap v3 · Robinhood Chain</div>
+        <div class="ruler" id="ruler" aria-label="Price ruler: the agent's range from low to high, one tick per bin, live price in yellow">
+          <div class="ruler-head mono" id="stageTag"></div>
+          <div class="ruler-ticks" id="rulerTicks"></div>
+        </div>
+        <div class="stage-copy">
+          <h1>The agent<br>picks the <em>rungs.</em></h1>
+          <p>It reads a Uniswap v3 pool live, measures how the price moves and proposes a shape, a range and up to 40 bins, each number with its source. You sign one transaction; the ladder stays yours.</p>
+        </div>
+        <div class="stage-legend" aria-hidden="true">
+          <span><i style="background:var(--paper);height:3px"></i>slat = bin, thickness = liquidity weight</span>
+          <span><i style="background:linear-gradient(var(--paper),var(--wash));width:3px;height:12px"></i>bottom → top = the agent's range</span>
+          <span><i style="background:var(--sodium);height:3px"></i>glowing slat = live price</span>
+        </div>
+        <div class="launchbar">
+          <div class="ca" data-ca></div>
+          <span class="countdown" data-countdown aria-live="off"></span>
+          <a class="btn btn-ghost" data-buy target="_blank" rel="noopener">Pons link opens at 15:00 UTC</a>
+          <a class="btn btn-ghost" data-x href="https://x.com/staggeragent" target="_blank" rel="noopener">X</a>
+        </div>
+      </div>
+
+      <aside class="panel" aria-label="Plan a ladder">
+        <div class="panel-head">
+          <h3>Plan a ladder</h3>
+          <span class="source" id="planAge"></span>
+        </div>
+        <div class="controls">
+          <label class="field"><span>Pool</span>
+            <select id="poolSel"><option>Loading pools…</option></select>
+          </label>
+          <div class="field"><span>Horizon</span>
+            <div class="seg" id="horizon" role="group" aria-label="Horizon in days">
+              <button type="button" data-v="1">1d</button><button type="button" data-v="3">3d</button><button type="button" data-v="7" aria-pressed="true">7d</button><button type="button" data-v="14">14d</button><button type="button" data-v="30">30d</button>
+            </div>
+          </div>
+          <div class="field"><span>Side</span>
+            <div class="seg" id="mode" role="group" aria-label="Side">
+              <button type="button" data-v="both" aria-pressed="true">Two-sided</button><button type="button" data-v="below">Below price</button><button type="button" data-v="above">Above price</button>
+            </div>
+          </div>
+          <div class="field"><span>Shape</span>
+            <div class="seg" id="shape" role="group" aria-label="Shape">
+              <button type="button" data-v="" aria-pressed="true">Agent picks</button><button type="button" data-v="spot">Spot</button><button type="button" data-v="curve">Curve</button><button type="button" data-v="bidask">Bid-Ask</button>
+            </div>
+          </div>
+          <div class="row2">
+            <label class="field"><span id="lbl0">Token 0 max</span><input id="amt0" type="number" min="0" step="any" inputmode="decimal" placeholder="0" /></label>
+            <label class="field"><span id="lbl1">Token 1 max</span><input id="amt1" type="number" min="0" step="any" inputmode="decimal" placeholder="0" /></label>
+          </div>
+          <span class="source" id="balHint"></span>
+        </div>
+        <div class="plan" id="plan" aria-live="polite">
+          <div class="skeleton" style="height:60px"></div>
+          <div class="skeleton" style="height:120px"></div>
+          <div class="skeleton" style="height:90px"></div>
+        </div>
+      </aside>
+    </section>
+
+    <section class="section" id="pools">
+      <div class="wrap">
+        <div class="section-head">
+          <div><div class="eyebrow">Pools</div><h2>Where the volume is</h2>
+            <p>Top Uniswap v3 pools on Robinhood Chain by 24h volume. Click a row to hand it to the agent.</p></div>
+          <span class="source" id="poolsSrc">Volume and TVL: GeckoTerminal, refreshed every 2 min. Prices: the pool's own oracle.</span>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Pair</th><th>Fee tier</th><th class="num">TVL</th><th class="num">24h volume</th><th class="num">Fees / TVL 24h</th><th class="num">24h change</th><th class="num">Age</th></tr></thead>
+            <tbody id="poolRows"><tr><td colspan="7"><div class="skeleton"></div></td></tr></tbody>
+          </table>
+        </div>
+        <button class="btn" type="button" id="poolsMore" style="margin-top:14px" hidden>Show all pools</button>
+      </div>
+    </section>
+
+    <section class="section" id="portfolio">
+      <div class="wrap">
+        <div class="section-head">
+          <div><div class="eyebrow">Portfolio</div><h2>Your ladders</h2>
+            <p>Ladders opened by the connected wallet. Only the owner can claim, withdraw or close; every action is a call from your own wallet.</p></div>
+          <button class="btn" type="button" id="pfRefresh">Refresh</button>
+        </div>
+        <div id="pf"><div class="empty">Connect a wallet to see your ladders. <button class="btn" type="button" data-connect>Connect wallet</button></div></div>
+      </div>
+    </section>
+
+    <section class="section" id="record">
+      <div class="wrap">
+        <div class="section-head">
+          <div><div class="eyebrow">Track record</div><h2>The agent's own calls</h2>
+            <p>Every 6 hours the agent plans a 1-day range for the top pools in public, then checks whether the price stayed inside. Nothing is removed.</p></div>
+        </div>
+        <div id="sb"><div class="skeleton" style="height:120px"></div></div>
+      </div>
+    </section>
+
+    <section class="section" id="stake">
+      <div class="wrap split">
+        <div>
+          <div class="eyebrow">Stake $RUNGS</div><h2>Fees in, ETH out, over 7 days</h2>
+          <ol class="steps" style="margin-top:22px">
+            <li><b>1</b><div>When a ladder owner claims swap fees, the LadderManager keeps a fixed <span id="feePct">5%</span> of the ETH side of those fees. Fees in USDG or any other token go 100% to the owner. Never principal; the rate is set at deploy and cannot change.</div></li>
+            <li><b>2</b><div>That ETH goes straight to the StaggerStake contract. It swaps nothing and holds no other token; it only receives ETH.</div></li>
+            <li><b>3</b><div>ETH is streamed to $RUNGS stakers pro rata over 7 days. Stake, unstake and claim whenever you like; there is no lock.</div></li>
+          </ol>
+          <p class="muted small" style="margin-top:14px">No promised returns. If no ETH fees are claimed, nothing flows. Details in the <a href="/docs/#contracts">docs</a>.</p>
+        </div>
+        <div class="card" id="stakeCard"><div class="skeleton" style="height:160px"></div></div>
+      </div>
+    </section>
+  </main>
+  <!--FOOTER-->
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
